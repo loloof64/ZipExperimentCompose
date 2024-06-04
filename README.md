@@ -1,11 +1,15 @@
-This is a Kotlin Multiplatform project targeting Android, Desktop.
+# Zip experiment
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+A simple Zip and file explorer experiment in Jetpack Compose Multiplatform.
 
+## Credits
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+### Images
+
+#### Svg Repo
+
+Some pictures have been downloaded from [SvgRepo](https://www.svgrepo.com/).
+They have been adapted with [SvgToCompose tool](https://github.com/rafaeltonholo/svg-to-compose)
+
+* folder => https://www.svgrepo.com/svg/474852/folder
+* file => https://www.svgrepo.com/svg/513298/file-2
