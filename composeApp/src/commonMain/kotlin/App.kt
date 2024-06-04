@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import java.nio.file.Paths
 
 import zipexperiment.composeapp.generated.resources.Res
 import zipexperiment.composeapp.generated.resources.compose_multiplatform
@@ -30,4 +31,9 @@ fun App() {
             }
         }
     }
+}
+
+fun getDocumentsDirectory(): String {
+    val home = System.getProperty("user.home")
+    return Paths.get(home, "Documents").toString()
 }

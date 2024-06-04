@@ -1,13 +1,17 @@
 package composables
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -22,6 +26,29 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import zipexperiment.composeapp.generated.resources.Res
 import zipexperiment.composeapp.generated.resources.file_item_icon
+
+@Composable
+fun FileExplorer(
+    modifier: Modifier = Modifier,
+    items: List<FileItem>,
+    currentPath: String,
+    verticalGap: Dp = 10.dp,
+    horizontalGap: Dp = 10.dp,
+    iconSize: Dp = 50.dp,
+    contentFontSize: TextUnit = 16.sp,
+    pathBarFontSize: TextUnit = 20.sp,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        ExplorerBar(path = currentPath, fontSize = pathBarFontSize)
+        ExplorerContent(
+            items = items,
+            verticalGap = verticalGap,
+            horizontalGap = horizontalGap,
+            iconSize = iconSize,
+            fontSize = contentFontSize
+        )
+    }
+}
 
 @Composable
 fun ExplorerContent(
@@ -41,6 +68,24 @@ fun ExplorerContent(
             FileItemRow(item = currentItem, iconSize = iconSize, fontSize = fontSize, spaceBetween = horizontalGap)
         }
     }
+}
+
+@Composable
+fun ExplorerBar(
+    modifier: Modifier = Modifier,
+    path: String,
+    fontSize: TextUnit = 20.sp,
+) {
+    Text(
+        modifier = modifier.fillMaxWidth().background(color = Color.Green.copy(alpha = 0.4f)).horizontalScroll(
+            rememberScrollState()
+        ),
+        text = path,
+        fontSize = fontSize,
+        overflow = TextOverflow.Visible,
+        softWrap = false,
+        maxLines = 1,
+    )
 }
 
 @Composable
@@ -84,6 +129,28 @@ fun FileItemName(modifier: Modifier = Modifier, fileName: String, fontSize: Text
 ///////////////////////////////
 // Previews
 ///////////////////////////////
+
+val items = listOf(
+    FileItem(name = "01 file", isFolder = false),
+    FileItem(name = "02 folder", isFolder = true),
+    FileItem(name = "03 file", isFolder = false),
+    FileItem(name = "04 file", isFolder = false),
+    FileItem(name = "01 folder", isFolder = true),
+    FileItem(name = "02 file", isFolder = false),
+    FileItem(name = "..", isFolder = true),
+    FileItem(name = "03 folder", isFolder = true),
+    FileItem(name = "05 folder", isFolder = true),
+    FileItem(name = "04 folder", isFolder = true),
+    FileItem(name = "06 file", isFolder = false),
+    FileItem(name = "08 folder", isFolder = true),
+    FileItem(name = "07 folder", isFolder = true),
+    FileItem(name = "05 file", isFolder = false),
+    FileItem(name = "10 file", isFolder = false),
+    FileItem(name = "08 file", isFolder = false),
+    FileItem(name = "07 file", isFolder = false),
+    FileItem(name = "06 folder", isFolder = true),
+    FileItem(name = "09 file", isFolder = false),
+).sort()
 
 @Composable
 private fun PreviewContainer(content: @Composable () -> Unit) {
@@ -139,30 +206,26 @@ fun FileItemRowForFilePreview() {
 @Preview
 @Composable
 fun ExplorerContentPreview() {
-    val items = listOf(
-        FileItem(name = "01 file", isFolder = false),
-        FileItem(name = "02 folder", isFolder = true),
-        FileItem(name = "03 file", isFolder = false),
-        FileItem(name = "04 file", isFolder = false),
-        FileItem(name = "01 folder", isFolder = true),
-        FileItem(name = "02 file", isFolder = false),
-        FileItem(name = "..", isFolder = true),
-        FileItem(name = "03 folder", isFolder = true),
-        FileItem(name = "05 folder", isFolder = true),
-        FileItem(name = "04 folder", isFolder = true),
-        FileItem(name = "06 file", isFolder = false),
-        FileItem(name = "08 folder", isFolder = true),
-        FileItem(name = "07 folder", isFolder = true),
-        FileItem(name = "05 file", isFolder = false),
-        FileItem(name = "10 file", isFolder = false),
-        FileItem(name = "08 file", isFolder = false),
-        FileItem(name = "07 file", isFolder = false),
-        FileItem(name = "06 folder", isFolder = true),
-        FileItem(name = "09 file", isFolder = false),
-        ).sort()
     PreviewContainer {
         ExplorerContent(
             items = items,
         )
     }
+}
+
+@Preview
+@Composable
+fun ExplorerBarPreview() {
+    PreviewContainer {
+        ExplorerBar(path = "/home/user/Documents/MyBooks/Pdfs")
+    }
+}
+
+@Preview
+@Composable
+fun FileExplorerPreview() {
+    FileExplorer(
+        items = items,
+        currentPath = "/home/user/Documents/MyBooks/Pdfs"
+    )
 }
