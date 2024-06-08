@@ -25,6 +25,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.coroutines.android)
+            implementation(libs.splitties.app.ctx)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

@@ -2,6 +2,7 @@ package ui.viewmodels
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import getStartDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +23,10 @@ class FileExplorerScreenModel : ScreenModel {
     var uiState = _uiState.asStateFlow()
 
     init {
-        val homeDirectory = getHomeDirectory()
+        val startDirectory = getStartDirectory()
         _uiState.update {
             FileExplorerState.Ready(
-                currentPath = FileSystem.SYSTEM.canonicalize(homeDirectory.toPath()).toString(),
+                currentPath = FileSystem.SYSTEM.canonicalize(startDirectory.toPath()).toString(),
                 items = listOf()
             )
         }
@@ -58,9 +59,6 @@ class FileExplorerScreenModel : ScreenModel {
         coroutineScope {
             withContext(Dispatchers.Default) {
                 val currentPath = (_uiState.value as FileExplorerState.Ready).currentPath
-                /////////////////////////////
-                println("current path is $currentPath")
-                /////////////////////////////
                 val rawElementsList = FileSystem.SYSTEM.list(currentPath.toPath())
                 val newElementsList = rawElementsList.map {
                     FileItem(it.toFile().isDirectory, it.name)
@@ -73,12 +71,10 @@ class FileExplorerScreenModel : ScreenModel {
                     )
                 ) + newElementsList
 
-                _uiState.update { (it as FileExplorerState.Ready).copy(items = result) }
+                withContext(Dispatchers.Main) {
+                    _uiState.update { (it as FileExplorerState.Ready).copy(items = result) }
+                }
             }
         }
-    }
-
-    private fun getHomeDirectory(): String {
-        return System.getProperty("user.home")
     }
 }

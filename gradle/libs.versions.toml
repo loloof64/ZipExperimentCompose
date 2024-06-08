@@ -16,7 +16,8 @@ kotlin = "2.0.0"
 kmpIo = "0.1.5"
 voyager = "1.0.0"
 okio = "3.2.0"
-coroutines-swing = "1.8.1"
+coroutines-ui = "1.8.1"
+splitties = "3.0.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -33,7 +34,9 @@ kmpIo = { group = "io.github.skolson", name = "kmp-io", version.ref = "kmpIo" }
 voyager-navigator = { group="cafe.adriel.voyager", name="voyager-navigator", version.ref = "voyager" }
 voyager-screen-model = { group="cafe.adriel.voyager", name="voyager-screenmodel", version.ref = "voyager" }
 okio = {group = "com.squareup.okio", name ="okio", version.ref = "okio"}
-coroutines-swing = {group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-swing", version.ref="coroutines-swing"}
+coroutines-swing = {group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-swing", version.ref="coroutines-ui"}
+coroutines-android = {group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-android", version.ref="coroutines-ui"}
+splitties-app-ctx = {group ="com.louiscad.splitties", name="splitties-appctx", version.ref="splitties"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
