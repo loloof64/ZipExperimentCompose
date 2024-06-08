@@ -14,6 +14,9 @@ compose-plugin = "1.6.10"
 junit = "4.13.2"
 kotlin = "2.0.0"
 kmpIo = "0.1.5"
+voyager = "1.0.0"
+okio = "3.2.0"
+coroutines-swing = "1.8.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -27,6 +30,10 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 kmpIo = { group = "io.github.skolson", name = "kmp-io", version.ref = "kmpIo" }
+voyager-navigator = { group="cafe.adriel.voyager", name="voyager-navigator", version.ref = "voyager" }
+voyager-screen-model = { group="cafe.adriel.voyager", name="voyager-screenmodel", version.ref = "voyager" }
+okio = {group = "com.squareup.okio", name ="okio", version.ref = "okio"}
+coroutines-swing = {group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-swing", version.ref="coroutines-swing"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
