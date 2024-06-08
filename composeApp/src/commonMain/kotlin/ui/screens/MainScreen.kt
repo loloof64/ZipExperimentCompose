@@ -12,6 +12,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import composables.FileExplorer
 import composables.Loading
+import models.FileItem
 import ui.states.FileExplorerState
 import ui.viewmodels.FileExplorerScreenModel
 
@@ -20,6 +21,11 @@ class MainScreen : Screen {
     override fun Content() {
         val screenModel = rememberScreenModel { FileExplorerScreenModel() }
         val state = screenModel.uiState.collectAsState()
+
+        fun onItemSelected(item: FileItem) {
+            if (!item.isFolder) return
+            screenModel.enterSubdirectory(item.name)
+        }
 
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -31,7 +37,8 @@ class MainScreen : Screen {
                 is FileExplorerState.Ready -> FileExplorer(
                     modifier = Modifier.padding(it).fillMaxSize(),
                     items = (state.value as FileExplorerState.Ready).items,
-                    currentPath = (state.value as FileExplorerState.Ready).currentPath
+                    currentPath = (state.value as FileExplorerState.Ready).currentPath,
+                    onItemSelected = ::onItemSelected
                     )
                 else -> Loading()
             }

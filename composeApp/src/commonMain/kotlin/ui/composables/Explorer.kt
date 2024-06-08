@@ -1,12 +1,9 @@
 package composables
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +42,7 @@ fun FileExplorer(
     iconSize: Dp = 50.dp,
     contentFontSize: TextUnit = 16.sp,
     pathBarFontSize: TextUnit = 20.sp,
+    onItemSelected: (FileItem) -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         ExplorerBar(path = currentPath, fontSize = pathBarFontSize)
@@ -53,7 +51,8 @@ fun FileExplorer(
             verticalGap = verticalGap,
             horizontalGap = horizontalGap,
             iconSize = iconSize,
-            fontSize = contentFontSize
+            fontSize = contentFontSize,
+            onItemSelected = onItemSelected,
         )
     }
 }
@@ -66,6 +65,7 @@ fun ExplorerContent(
     horizontalGap: Dp = 10.dp,
     iconSize: Dp = 50.dp,
     fontSize: TextUnit = 16.sp,
+    onItemSelected: (FileItem) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -73,7 +73,13 @@ fun ExplorerContent(
         verticalArrangement = Arrangement.spacedBy(verticalGap)
     ) {
         items(items) { currentItem ->
-            FileItemRow(item = currentItem, iconSize = iconSize, fontSize = fontSize, spaceBetween = horizontalGap)
+            FileItemRow(
+                item = currentItem,
+                iconSize = iconSize,
+                fontSize = fontSize,
+                spaceBetween = horizontalGap,
+                onItemSelected = onItemSelected
+            )
         }
     }
 }
@@ -96,16 +102,18 @@ fun ExplorerBar(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FileItemRow(
     modifier: Modifier = Modifier,
     item: FileItem,
     iconSize: Dp = 50.dp,
     fontSize: TextUnit = 16.sp,
-    spaceBetween: Dp = 10.dp
+    spaceBetween: Dp = 10.dp,
+    onItemSelected: (FileItem) -> Unit = {},
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth().clickable { onItemSelected(item) },
         horizontalArrangement = Arrangement.spacedBy(spaceBetween),
         verticalAlignment = Alignment.CenterVertically
     ) {

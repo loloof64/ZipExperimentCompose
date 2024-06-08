@@ -31,13 +31,13 @@ class FileExplorerScreenModel : ScreenModel {
             )
         }
         screenModelScope.launch(Dispatchers.Default) {
-            updateExplorerItems()
+            updateExplorerItems((_uiState.value as FileExplorerState.Ready).currentPath)
         }
     }
 
     // Modifiers
 
-    suspend fun enterSubdirectory(directoryName: String) {
+    fun enterSubdirectory(directoryName: String) {
         if (_uiState.value !is FileExplorerState.Ready) return
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
@@ -46,25 +46,26 @@ class FileExplorerScreenModel : ScreenModel {
         ////////////////////////////////////////////
         println("New path : $newPathStr")
         ////////////////////////////////////////////
-        try {
-            updateExplorerItems()
-            _uiState.update { (it as FileExplorerState.Ready).copy(currentPath = newPathStr) }
-        } catch (ex: IOException) {
-            println("Could not change directory to $directoryName")
+        screenModelScope.launch {
+            try {
+                updateExplorerItems(newPathStr)
+                _uiState.update { (it as FileExplorerState.Ready).copy(currentPath = newPathStr) }
+            } catch (ex: IOException) {
+                println("Could not change directory to $directoryName")
+            }
         }
     }
 
-    private suspend fun updateExplorerItems() {
+    private suspend fun updateExplorerItems(newPath: String) {
         if (_uiState.value !is FileExplorerState.Ready) return
         coroutineScope {
             withContext(Dispatchers.Default) {
-                val currentPath = (_uiState.value as FileExplorerState.Ready).currentPath
-                val rawElementsList = FileSystem.SYSTEM.list(currentPath.toPath())
+                val rawElementsList = FileSystem.SYSTEM.list(newPath.toPath())
                 val newElementsList = rawElementsList.map {
                     FileItem(it.toFile().isDirectory, it.name)
                 }.sort()
                 // Adds the go back item if possible.
-                val result = if (currentPath.toPath().toFile().parentFile == null) newElementsList else listOf(
+                val result = if (newPath.toPath().toFile().parentFile == null) newElementsList else listOf(
                     FileItem(
                         true,
                         ".."
