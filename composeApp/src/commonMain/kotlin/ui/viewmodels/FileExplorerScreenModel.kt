@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import models.FileItem
+import models.filterByExtensions
 import models.sort
 import okio.FileSystem
 import okio.IOException
@@ -43,9 +44,7 @@ class FileExplorerScreenModel : ScreenModel {
         val currentPath = currentPathStr.toPath()
         val newPath = currentPath.resolve(directoryName)
         val newPathStr = FileSystem.SYSTEM.canonicalize(newPath).toString()
-        ////////////////////////////////////////////
-        println("New path : $newPathStr")
-        ////////////////////////////////////////////
+        
         screenModelScope.launch {
             try {
                 updateExplorerItems(newPathStr)
@@ -63,7 +62,7 @@ class FileExplorerScreenModel : ScreenModel {
                 val rawElementsList = FileSystem.SYSTEM.list(newPath.toPath())
                 val newElementsList = rawElementsList.map {
                     FileItem(it.toFile().isDirectory, it.name)
-                }.sort()
+                }.filterByExtensions(listOf("txt")).sort()
                 // Adds the go back item if possible.
                 val result = if (newPath.toPath().toFile().parentFile == null) newElementsList else listOf(
                     FileItem(
