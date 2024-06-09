@@ -40,6 +40,7 @@ class FileExplorerScreenModel : ScreenModel {
 
     fun enterSubdirectory(directoryName: String) {
         if (_uiState.value !is FileExplorerState.Ready) return
+
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
         val newPath = currentPath.resolve(directoryName)
@@ -51,7 +52,48 @@ class FileExplorerScreenModel : ScreenModel {
                 _uiState.update { (it as FileExplorerState.Ready).copy(currentPath = newPathStr) }
             } catch (ex: IOException) {
                 println("Could not change directory to $directoryName")
+                println(ex.localizedMessage)
             }
+        }
+    }
+
+    fun addFolder(directoryName: String, onError: () -> Unit) {
+        if (_uiState.value !is FileExplorerState.Ready) return
+
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val currentPath = currentPathStr.toPath()
+        val newPath = currentPath.resolve(directoryName)
+
+        try {
+            FileSystem.SYSTEM.createDirectory(newPath)
+            screenModelScope.launch {
+                val newPathStr = FileSystem.SYSTEM.canonicalize(currentPath).toString()
+                updateExplorerItems(newPathStr)
+            }
+        } catch (ex: IOException) {
+            println("Could not create directory $newPath !")
+            onError()
+        }
+    }
+
+    fun addTextFile(fileName: String, content: String, onError: () -> Unit) {
+        if (_uiState.value !is FileExplorerState.Ready) return
+
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val currentPath = currentPathStr.toPath()
+        val newPath = currentPath.resolve(fileName)
+
+        try {
+            FileSystem.SYSTEM.write(newPath) {
+                writeUtf8(content)
+            }
+            screenModelScope.launch {
+                val newPathStr = FileSystem.SYSTEM.canonicalize(currentPath).toString()
+                updateExplorerItems(newPathStr)
+            }
+        } catch (ex: IOException) {
+            println("Could not create file $newPath !")
+            onError()
         }
     }
 

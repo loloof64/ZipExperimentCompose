@@ -1,3 +1,12 @@
 <resources>
     <string name="file_item_icon">Icono de archivo o carpeta</string>
+    <string name = "add_item">Añadir un elemento</string>
+    <string name= "new_file">Nuevo archivo</string>
+    <string name= "new_folder">Nueva carpeta</string>
+    <string name= "new_file_name">Nombre del archivo</string>
+    <string name= "new_folder_name">Nombre de la carpeta</string>
+    <string name="cancel">Anular</string>
+    <string name="validate">Validar</string>
+    <string name="failed_creating_folder">¡Error al crear la carpeta!</string>
+    <string name="failed_creating_file">¡Error al crear el archivo!</string>
 </resources>

@@ -38,6 +38,7 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.screen.model)
             implementation(libs.okio)
+            implementation(libs.kotlin.datetime)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
