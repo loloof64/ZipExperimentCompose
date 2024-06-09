@@ -7,12 +7,15 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import composables.FileExplorer
 import composables.Loading
+import composables.icons.FileIcon
+import composables.icons.FolderIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -113,10 +116,25 @@ class MainScreen : Screen {
                             onDismiss = { dialogAddItemOpen = false }, actions = listOf(
                                 DialogAction(
                                     caption = stringResource(Res.string.new_file),
+                                    leadIcon = {
+                                        Icon(
+                                            modifier = Modifier.size(36.dp),
+                                            imageVector = FileIcon,
+                                            contentDescription = stringResource(Res.string.file)
+                                        )
+                                    },
                                     onSelected = ::openNewFilePrompt,
                                 ),
                                 DialogAction(
                                     caption = stringResource(Res.string.new_folder),
+                                    leadIcon = {
+                                        Icon(
+                                            modifier = Modifier.size(36.dp),
+                                            imageVector = FolderIcon,
+                                            contentDescription = stringResource(Res.string.folder),
+                                            tint = Color.Yellow.copy(alpha = 0.8f),
+                                        )
+                                    },
                                     onSelected = ::openNewFolderPrompt,
                                 ),
                             )

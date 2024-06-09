@@ -1,4 +1,6 @@
 <resources>
+    <string name="file">File</string>
+    <string name="folder">Folder</string>
     <string name= "file_item_icon">File or folder icon</string>
     <string name = "add_item">Add item</string>
     <string name= "new_file">New file</string>

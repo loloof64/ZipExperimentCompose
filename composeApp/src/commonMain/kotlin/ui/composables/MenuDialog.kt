@@ -5,13 +5,12 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
@@ -23,7 +22,7 @@ import zipexperiment.composeapp.generated.resources.validate
 A single action for the menu.
 In onSelected, you don't have to handle a dismiss action.
  */
-data class DialogAction(val caption: String, val onSelected: () -> Unit)
+data class DialogAction(val caption: String, val leadIcon: @Composable () -> Unit, val onSelected: () -> Unit)
 
 /**
  * You don't have to handle a dismiss action in the actions callbacks : it'll be done
@@ -37,11 +36,17 @@ fun MenuPopUpDialog(onDismiss: () -> Unit, actions: List<DialogAction>) {
             verticalArrangement = Arrangement.Center
         ) {
             for (singleAction in actions) {
-                TextButton(onClick = {
-                    singleAction.onSelected()
-                    onDismiss()
-                }) {
-                    Text(singleAction.caption)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    singleAction.leadIcon()
+                    TextButton(onClick = {
+                        singleAction.onSelected()
+                        onDismiss()
+                    }) {
+                        Text(singleAction.caption)
+                    }
                 }
             }
         }
@@ -57,6 +62,7 @@ fun MenuTextField(
     onCancelled: () -> Unit,
     onValidated: (String) -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
     var currentText by rememberSaveable { mutableStateOf("") }
     AlertDialog(onDismissRequest = onCancelled, buttons = {
         Row(
@@ -69,10 +75,20 @@ fun MenuTextField(
             }
             Spacer(modifier = Modifier.width(20.dp))
             TextButton(onClick = { onValidated(currentText) }) {
-                Text(stringResource(Res.string.validate), color = Color.Green.copy(red = 0.5f, blue = 0.8f, green = 0.6f))
+                Text(
+                    stringResource(Res.string.validate),
+                    color = Color.Green.copy(red = 0.5f, blue = 0.8f, green = 0.6f)
+                )
             }
         }
     }, text = {
-        TextField(currentText, onValueChange = { currentText = it })
+        TextField(
+            currentText, onValueChange = { currentText = it },
+            modifier = Modifier.focusRequester(focusRequester)
+        )
     }, title = { Text(titleString) })
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 }
