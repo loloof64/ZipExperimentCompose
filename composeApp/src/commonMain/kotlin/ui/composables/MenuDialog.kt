@@ -1,5 +1,6 @@
 package ui.composables
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
@@ -38,15 +39,14 @@ fun MenuPopUpDialog(onDismiss: () -> Unit, actions: List<DialogAction>) {
         ) {
             for (singleAction in actions) {
                 Row(
+                    modifier = Modifier.clickable {
+                        singleAction.onSelected()
+                    },
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     singleAction.leadIcon()
-                    TextButton(onClick = {
-                        singleAction.onSelected()
-                    }) {
-                        Text(singleAction.caption)
-                    }
+                    Text(singleAction.caption)
                 }
             }
         }
