@@ -24,6 +24,7 @@ import kotlinx.datetime.toLocalDateTime
 import models.FileItem
 import org.jetbrains.compose.resources.stringResource
 import ui.composables.DialogAction
+import ui.composables.MenuConfirm
 import ui.composables.MenuPopUpDialog
 import ui.composables.MenuTextField
 import ui.states.FileExplorerState
@@ -40,6 +41,10 @@ class MainScreen : Screen {
         var dialogAddItemOpen by rememberSaveable { mutableStateOf(false) }
         var dialogNewFileNameOpen by rememberSaveable { mutableStateOf(false) }
         var dialogNewFolderNameOpen by rememberSaveable { mutableStateOf(false) }
+        var dialogOverwriteFileOpen by rememberSaveable { mutableStateOf(false) }
+        var dialogOverwriteFolderOpen by rememberSaveable { mutableStateOf(false) }
+        var overWritingFileName by rememberSaveable { mutableStateOf<String?>(null) }
+        var overWritingFolderName by rememberSaveable { mutableStateOf<String?>(null) }
 
         val failedCreatingFolderStr = stringResource(Res.string.failed_creating_folder)
         val failedCreatingFileStr = stringResource(Res.string.failed_creating_file)
@@ -61,16 +66,29 @@ class MainScreen : Screen {
             dialogNewFileNameOpen = false
         }
 
-        fun handleFilePrompt(value: String) {
-            val fileName = if (value.endsWith(".txt")) value else value + ".txt"
+        fun cancelOverWritingFile() {
+            dialogOverwriteFileOpen = false
+        }
+
+        fun handleFilePrompt(fileName: String, warnAboutOverwrite: Boolean = true) {
+            dialogOverwriteFileOpen = false
+            dialogNewFileNameOpen = false
+            val checkedFileName = if (fileName.endsWith(".txt")) fileName else "$fileName.txt"
+            if (screenModel.itemExists(checkedFileName) && warnAboutOverwrite) {
+                overWritingFileName = checkedFileName
+                dialogOverwriteFileOpen = true
+                return
+            }
+            else {
+                overWritingFileName = null
+            }
             val content = """
             This is a simple file text
             that spans on several lines.
             (Created at ${Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())})
 
             """.trimIndent()
-            dialogNewFileNameOpen = false
-            screenModel.addTextFile(fileName = fileName, content = content, onError = {
+            screenModel.addTextFile(fileName = checkedFileName, content = content, onError = {
                 scope.launch(Dispatchers.Main) {
                     snackbarHostState.showSnackbar(failedCreatingFileStr)
                 }
@@ -85,9 +103,22 @@ class MainScreen : Screen {
             dialogNewFolderNameOpen = false
         }
 
-        fun handleFolderPrompt(value: String) {
+        fun cancelOverWritingFolder() {
+            dialogOverwriteFolderOpen = false
+        }
+
+        fun handleFolderPrompt(folderName: String, warnAboutOverwrite: Boolean = true) {
+            dialogOverwriteFolderOpen = false
             dialogNewFolderNameOpen = false
-            screenModel.addFolder(value, onError = {
+            if (screenModel.itemExists(folderName) && warnAboutOverwrite) {
+                overWritingFolderName = folderName
+                dialogOverwriteFolderOpen = true
+                return
+            }
+            else {
+                overWritingFolderName = null
+            }
+            screenModel.addFolder(folderName, onError = {
                 scope.launch(Dispatchers.Main) {
                     snackbarHostState.showSnackbar(failedCreatingFolderStr)
                 }
@@ -144,14 +175,55 @@ class MainScreen : Screen {
                         MenuTextField(
                             titleString = stringResource(Res.string.new_file_name),
                             onCancelled = ::cancelNewFilePrompt,
-                            onValidated = ::handleFilePrompt
+                            onValidated = { enteredFileName ->
+                                handleFilePrompt(
+                                    fileName = enteredFileName,
+                                    warnAboutOverwrite = true
+                                )
+                            }
                         )
                     }
                     if (dialogNewFolderNameOpen) {
                         MenuTextField(
                             titleString = stringResource(Res.string.new_folder_name),
                             onCancelled = ::cancelNewFolderPrompt,
-                            onValidated = ::handleFolderPrompt,
+                            onValidated = { enteredFolderName ->
+                                handleFolderPrompt(
+                                    folderName = enteredFolderName,
+                                    warnAboutOverwrite = true
+                                )
+                            },
+                        )
+                    }
+
+                    if (dialogOverwriteFileOpen && overWritingFileName != null) {
+                        val fileToOverride = overWritingFileName!!
+
+                        MenuConfirm(
+                            message = stringResource(Res.string.overwrite_file_message, fileToOverride),
+                            onCancelled = ::cancelOverWritingFile,
+                            onValidated = {
+                                handleFilePrompt(
+                                    fileName = fileToOverride,
+                                    warnAboutOverwrite = false
+                                )
+                            }
+                        )
+
+                    }
+
+                    if (dialogOverwriteFolderOpen && overWritingFolderName != null) {
+                        val folderToOverride = overWritingFolderName!!
+
+                        MenuConfirm(
+                            message = stringResource(Res.string.overwrite_folder_message, folderToOverride),
+                            onCancelled = ::cancelOverWritingFolder,
+                            onValidated = {
+                                handleFolderPrompt(
+                                    folderName = folderToOverride,
+                                    warnAboutOverwrite = false,
+                                )
+                            }
                         )
                     }
                 }

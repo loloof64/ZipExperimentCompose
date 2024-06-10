@@ -1,4 +1,6 @@
 <resources>
+    <string name="no">Non</string>
+    <string name="yes">Oui</string>
     <string name="file">Fichier</string>
     <string name="folder">Dossier</string>
     <string name="file_item_icon">Icône fichier ou dossier</string>
@@ -11,4 +13,6 @@
     <string name="validate">Valider</string>
     <string name="failed_creating_folder">Échec de création du dossier !</string>
     <string name="failed_creating_file">Échec de création du fichier !</string>
+    <string name="overwrite_file_message">Écraser le fichier %1$s ?</string>
+    <string name="overwrite_folder_message">Écraser le dossier %1$s ?</string>
 </resources>

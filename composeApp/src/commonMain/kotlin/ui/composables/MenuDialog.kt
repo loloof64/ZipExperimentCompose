@@ -14,8 +14,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import zipexperiment.composeapp.generated.resources.*
 import zipexperiment.composeapp.generated.resources.Res
 import zipexperiment.composeapp.generated.resources.cancel
+import zipexperiment.composeapp.generated.resources.no
 import zipexperiment.composeapp.generated.resources.validate
 
 /*
@@ -77,7 +79,7 @@ fun MenuTextField(
             TextButton(onClick = { onValidated(currentText) }) {
                 Text(
                     stringResource(Res.string.validate),
-                    color = Color.Green.copy(red = 0.5f, blue = 0.8f, green = 0.6f)
+                    color = Color.Blue
                 )
             }
         }
@@ -91,4 +93,30 @@ fun MenuTextField(
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+}
+
+@Composable
+fun MenuConfirm(
+    message: String,
+    onCancelled: () -> Unit,
+    onValidated: () -> Unit,
+) {
+    AlertDialog(onDismissRequest = onCancelled, buttons = {
+        Row(
+            modifier = Modifier.fillMaxWidth(0.8f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = onCancelled) {
+                Text(stringResource(Res.string.no), color = Color.Red)
+            }
+            Spacer(modifier = Modifier.width(20.dp))
+            TextButton(onClick = onValidated) {
+                Text(
+                    stringResource(Res.string.yes),
+                    color = Color.Blue
+                )
+            }
+        }
+    }, text = { Text(message) })
 }

@@ -36,6 +36,13 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
+    fun itemExists(itemName: String) : Boolean {
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val currentPath = currentPathStr.toPath()
+        val newPath = currentPath.resolve(itemName)
+        return FileSystem.SYSTEM.exists(newPath)
+    }
+
     // Modifiers
 
     fun enterSubdirectory(directoryName: String) {
@@ -57,6 +64,9 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
+    /**
+     * Caution : this may overwrite exisiting folder !
+     */
     fun addFolder(directoryName: String, onError: () -> Unit) {
         if (_uiState.value !is FileExplorerState.Ready) return
 
@@ -76,6 +86,9 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
+    /**
+     * Caution : this may overwrite exisiting file !
+    */
     fun addTextFile(fileName: String, content: String, onError: () -> Unit) {
         if (_uiState.value !is FileExplorerState.Ready) return
 
