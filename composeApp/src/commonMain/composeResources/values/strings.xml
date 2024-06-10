@@ -14,5 +14,5 @@
     <string name="failed_creating_folder">Failed creating folder !</string>
     <string name="failed_creating_file">Failed creating file !</string>
     <string name="overwrite_file_message">Overwrite file %1$s ?</string>
-    <string name="overwrite_folder_message">Overwrite folder %1$s ?</string>
+    <string name="overwrite_folder_message">Overwrite folder %1$s and delete its content ?</string>
 </resources>

@@ -14,5 +14,5 @@
     <string name="failed_creating_folder">¡Error al crear la carpeta!</string>
     <string name="failed_creating_file">¡Error al crear el archivo!</string>
     <string name="overwrite_file_message">¿Sobrescribir el archivo %1$s?</string>
-    <string name="overwrite_folder_message">¿Sobrescribir la carpeta %1$s?</string>
+    <string name="overwrite_folder_message">¿Sobrescribir la carpeta %1$s y eliminar su contenido?</string>
 </resources>

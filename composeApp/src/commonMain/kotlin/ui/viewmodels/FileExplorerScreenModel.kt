@@ -74,15 +74,25 @@ class FileExplorerScreenModel : ScreenModel {
         val currentPath = currentPathStr.toPath()
         val newPath = currentPath.resolve(directoryName)
 
-        try {
-            FileSystem.SYSTEM.createDirectory(newPath)
+        fun effectiveCreationCode() {
+            FileSystem.SYSTEM.createDirectory(dir = newPath, mustCreate = true)
             screenModelScope.launch {
                 val newPathStr = FileSystem.SYSTEM.canonicalize(currentPath).toString()
                 updateExplorerItems(newPathStr)
             }
+        }
+
+        try {
+            effectiveCreationCode()
         } catch (ex: IOException) {
-            println("Could not create directory $newPath !")
-            onError()
+            try {
+                FileSystem.SYSTEM.deleteRecursively(newPath)
+                effectiveCreationCode()
+            }
+            catch (ex: IOException) {
+                println("Could not create directory $newPath !")
+                onError()
+            }
         }
     }
 
