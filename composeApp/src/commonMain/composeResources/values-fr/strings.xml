@@ -4,15 +4,21 @@
     <string name="file">Fichier</string>
     <string name="folder">Dossier</string>
     <string name="file_item_icon">Icône fichier ou dossier</string>
-    <string name = "add_item">Ajouter un élément</string>
-    <string name= "new_file">Nouveau fichier</string>
-    <string name= "new_folder">Nouveau dossier</string>
-    <string name= "new_file_name">Nom du fichier</string>
-    <string name= "new_folder_name">Nombre du dossier</string>
+    <string name="add_item">Ajouter un élément</string>
+    <string name="new_file">Nouveau fichier</string>
+    <string name="new_folder">Nouveau dossier</string>
+    <string name="new_file_name">Nom du fichier</string>
+    <string name="new_folder_name">Nombre du dossier</string>
     <string name="cancel">Annuler</string>
     <string name="validate">Valider</string>
     <string name="failed_creating_folder">Échec de création du dossier !</string>
     <string name="failed_creating_file">Échec de création du fichier !</string>
     <string name="overwrite_file_message">Écraser le fichier %1$s ?</string>
     <string name="overwrite_folder_message">Écraser le dossier %1$s et effacer son contenu ?</string>
+    <string name="delete_item">Effacer</string>
+    <string name="delete_folder_confirmation_message">Souhaitez-vous vraiment supprimer le dossier "%1$s" ?</string>
+    <string name="delete_file_confirmation_message">Souhaitez-vous vraiment supprimer le fichier "%1$s" ?</string>
+    <string name="delete_icon">Icône supprimer un élément</string>
+    <string name="failed_deleting_folder">Échec de suppression du dossier !</string>
+    <string name="failed_deleting_file">Échec de suppression du fichier !</string>
 </resources>

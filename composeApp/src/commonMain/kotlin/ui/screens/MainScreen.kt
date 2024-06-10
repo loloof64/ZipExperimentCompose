@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -43,15 +44,25 @@ class MainScreen : Screen {
         var dialogNewFolderNameOpen by rememberSaveable { mutableStateOf(false) }
         var dialogOverwriteFileOpen by rememberSaveable { mutableStateOf(false) }
         var dialogOverwriteFolderOpen by rememberSaveable { mutableStateOf(false) }
+        var dialogLongItemPressedMenuOpen by rememberSaveable { mutableStateOf(false) }
+        var dialogDeleteItemOpen by rememberSaveable { mutableStateOf(false) }
         var overWritingFileName by rememberSaveable { mutableStateOf<String?>(null) }
         var overWritingFolderName by rememberSaveable { mutableStateOf<String?>(null) }
+        var longPressItemToProcess by rememberSaveable { mutableStateOf<FileItem?>(null) }
 
         val failedCreatingFolderStr = stringResource(Res.string.failed_creating_folder)
         val failedCreatingFileStr = stringResource(Res.string.failed_creating_file)
+        val failedDeletingFolderStr = stringResource(Res.string.failed_deleting_folder)
+        val failedDeletingFileStr = stringResource(Res.string.failed_deleting_file)
 
         fun onItemSelected(item: FileItem) {
             if (!item.isFolder) return
             screenModel.enterSubdirectory(item.name)
+        }
+
+        fun onItemLongPress(item: FileItem) {
+            longPressItemToProcess = item
+            dialogLongItemPressedMenuOpen = true
         }
 
         fun onCreateItem() {
@@ -59,6 +70,7 @@ class MainScreen : Screen {
         }
 
         fun openNewFilePrompt() {
+            dialogAddItemOpen = false
             dialogNewFileNameOpen = true
         }
 
@@ -67,6 +79,7 @@ class MainScreen : Screen {
         }
 
         fun cancelOverWritingFile() {
+            overWritingFileName = null
             dialogOverwriteFileOpen = false
         }
 
@@ -78,8 +91,7 @@ class MainScreen : Screen {
                 overWritingFileName = checkedFileName
                 dialogOverwriteFileOpen = true
                 return
-            }
-            else {
+            } else {
                 overWritingFileName = null
             }
             val content = """
@@ -96,6 +108,7 @@ class MainScreen : Screen {
         }
 
         fun openNewFolderPrompt() {
+            dialogAddItemOpen = false
             dialogNewFolderNameOpen = true
         }
 
@@ -104,6 +117,7 @@ class MainScreen : Screen {
         }
 
         fun cancelOverWritingFolder() {
+            overWritingFolderName = null
             dialogOverwriteFolderOpen = false
         }
 
@@ -114,13 +128,38 @@ class MainScreen : Screen {
                 overWritingFolderName = folderName
                 dialogOverwriteFolderOpen = true
                 return
-            }
-            else {
+            } else {
                 overWritingFolderName = null
             }
             screenModel.addFolder(folderName, onError = {
                 scope.launch(Dispatchers.Main) {
                     snackbarHostState.showSnackbar(failedCreatingFolderStr)
+                }
+            })
+        }
+
+        fun handleDeleteItemRequest() {
+            dialogLongItemPressedMenuOpen = false
+            dialogDeleteItemOpen = true
+        }
+
+        fun cancelDeleteItem() {
+            longPressItemToProcess = null
+            dialogDeleteItemOpen = false
+        }
+
+        fun deleteItem() {
+            dialogDeleteItemOpen = false
+
+            screenModel.deleteItem(longPressItemToProcess!!.name, onSuccess = {
+                longPressItemToProcess = null
+            }, onError = {
+                scope.launch(Dispatchers.Main) {
+                    val message =
+                        if (longPressItemToProcess?.isFolder == true
+                        ) failedDeletingFolderStr else failedDeletingFileStr
+                    longPressItemToProcess = null
+                    snackbarHostState.showSnackbar(message)
                 }
             })
         }
@@ -140,7 +179,8 @@ class MainScreen : Screen {
                         modifier = Modifier.padding(it).fillMaxSize(),
                         items = (state.value as FileExplorerState.Ready).items,
                         currentPath = (state.value as FileExplorerState.Ready).currentPath,
-                        onItemSelected = ::onItemSelected
+                        onItemSelected = ::onItemSelected,
+                        onItemLongPress = ::onItemLongPress,
                     )
                     if (dialogAddItemOpen) {
                         MenuPopUpDialog(
@@ -170,8 +210,7 @@ class MainScreen : Screen {
                                 ),
                             )
                         )
-                    }
-                    if (dialogNewFileNameOpen) {
+                    } else if (dialogNewFileNameOpen) {
                         MenuTextField(
                             titleString = stringResource(Res.string.new_file_name),
                             onCancelled = ::cancelNewFilePrompt,
@@ -182,8 +221,7 @@ class MainScreen : Screen {
                                 )
                             }
                         )
-                    }
-                    if (dialogNewFolderNameOpen) {
+                    } else if (dialogNewFolderNameOpen) {
                         MenuTextField(
                             titleString = stringResource(Res.string.new_folder_name),
                             onCancelled = ::cancelNewFolderPrompt,
@@ -194,9 +232,7 @@ class MainScreen : Screen {
                                 )
                             },
                         )
-                    }
-
-                    if (dialogOverwriteFileOpen && overWritingFileName != null) {
+                    } else if (dialogOverwriteFileOpen && overWritingFileName != null) {
                         val fileToOverride = overWritingFileName!!
 
                         MenuConfirm(
@@ -210,9 +246,7 @@ class MainScreen : Screen {
                             }
                         )
 
-                    }
-
-                    if (dialogOverwriteFolderOpen && overWritingFolderName != null) {
+                    } else if (dialogOverwriteFolderOpen && overWritingFolderName != null) {
                         val folderToOverride = overWritingFolderName!!
 
                         MenuConfirm(
@@ -224,6 +258,35 @@ class MainScreen : Screen {
                                     warnAboutOverwrite = false,
                                 )
                             }
+                        )
+                    } else if (dialogLongItemPressedMenuOpen) {
+                        MenuPopUpDialog(
+                            onDismiss = {
+                                longPressItemToProcess = null
+                                dialogLongItemPressedMenuOpen = false
+                            },
+                            actions = listOf(
+                                DialogAction(
+                                    caption = stringResource(Res.string.delete_item),
+                                    leadIcon = {
+                                        Icon(
+                                            modifier = Modifier.size(36.dp),
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = stringResource(Res.string.delete_icon),
+                                        )
+                                    },
+                                    onSelected = ::handleDeleteItemRequest,
+                                )
+                            )
+                        )
+                    } else if (dialogDeleteItemOpen && longPressItemToProcess != null) {
+                        val messageId =
+                            if (longPressItemToProcess!!.isFolder) Res.string.delete_folder_confirmation_message
+                            else Res.string.delete_file_confirmation_message
+                        MenuConfirm(
+                            message = stringResource(messageId, longPressItemToProcess!!.name),
+                            onCancelled = ::cancelDeleteItem,
+                            onValidated = ::deleteItem,
                         )
                     }
                 }

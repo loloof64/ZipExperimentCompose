@@ -22,12 +22,11 @@ import zipexperiment.composeapp.generated.resources.validate
 
 /*
 A single action for the menu.
-In onSelected, you don't have to handle a dismiss action.
  */
 data class DialogAction(val caption: String, val leadIcon: @Composable () -> Unit, val onSelected: () -> Unit)
 
 /**
- * You don't have to handle a dismiss action in the actions callbacks : it'll be done
+ * You do have to handle a dismiss action in the actions callbacks : it won't be done
  * automatically with your onDismiss parameter.
  */
 @Composable
@@ -45,7 +44,6 @@ fun MenuPopUpDialog(onDismiss: () -> Unit, actions: List<DialogAction>) {
                     singleAction.leadIcon()
                     TextButton(onClick = {
                         singleAction.onSelected()
-                        onDismiss()
                     }) {
                         Text(singleAction.caption)
                     }

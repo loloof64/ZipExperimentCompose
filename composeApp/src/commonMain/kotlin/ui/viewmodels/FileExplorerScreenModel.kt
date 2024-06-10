@@ -36,7 +36,7 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
-    fun itemExists(itemName: String) : Boolean {
+    fun itemExists(itemName: String): Boolean {
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
         val newPath = currentPath.resolve(itemName)
@@ -52,7 +52,7 @@ class FileExplorerScreenModel : ScreenModel {
         val currentPath = currentPathStr.toPath()
         val newPath = currentPath.resolve(directoryName)
         val newPathStr = FileSystem.SYSTEM.canonicalize(newPath).toString()
-        
+
         screenModelScope.launch {
             try {
                 updateExplorerItems(newPathStr)
@@ -76,10 +76,7 @@ class FileExplorerScreenModel : ScreenModel {
 
         fun effectiveCreationCode() {
             FileSystem.SYSTEM.createDirectory(dir = newPath, mustCreate = true)
-            screenModelScope.launch {
-                val newPathStr = FileSystem.SYSTEM.canonicalize(currentPath).toString()
-                updateExplorerItems(newPathStr)
-            }
+            updateExplorerItemsForCurrentPath()
         }
 
         try {
@@ -88,8 +85,7 @@ class FileExplorerScreenModel : ScreenModel {
             try {
                 FileSystem.SYSTEM.deleteRecursively(newPath)
                 effectiveCreationCode()
-            }
-            catch (ex: IOException) {
+            } catch (ex: IOException) {
                 println("Could not create directory $newPath !")
                 onError()
             }
@@ -98,7 +94,7 @@ class FileExplorerScreenModel : ScreenModel {
 
     /**
      * Caution : this may overwrite exisiting file !
-    */
+     */
     fun addTextFile(fileName: String, content: String, onError: () -> Unit) {
         if (_uiState.value !is FileExplorerState.Ready) return
 
@@ -110,13 +106,38 @@ class FileExplorerScreenModel : ScreenModel {
             FileSystem.SYSTEM.write(newPath) {
                 writeUtf8(content)
             }
-            screenModelScope.launch {
-                val newPathStr = FileSystem.SYSTEM.canonicalize(currentPath).toString()
-                updateExplorerItems(newPathStr)
-            }
+            updateExplorerItemsForCurrentPath()
         } catch (ex: IOException) {
             println("Could not create file $newPath !")
             onError()
+        }
+    }
+
+    fun deleteItem(itemName: String, onSuccess: () -> Unit, onError: () -> Unit) {
+        if (_uiState.value !is FileExplorerState.Ready) return
+
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val currentPath = currentPathStr.toPath()
+        val newPath = currentPath.resolve(itemName)
+
+        if (!FileSystem.SYSTEM.exists(newPath)) return
+
+        try {
+            FileSystem.SYSTEM.deleteRecursively(newPath)
+            updateExplorerItemsForCurrentPath()
+            onSuccess()
+        } catch (ex: IOException) {
+            println("Failed to delete $itemName !")
+            onError()
+        }
+    }
+
+    private fun updateExplorerItemsForCurrentPath() {
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val currentPath = currentPathStr.toPath()
+        screenModelScope.launch {
+            val newPathStr = FileSystem.SYSTEM.canonicalize(currentPath).toString()
+            updateExplorerItems(newPathStr)
         }
     }
 

@@ -43,6 +43,7 @@ fun FileExplorer(
     contentFontSize: TextUnit = 16.sp,
     pathBarFontSize: TextUnit = 20.sp,
     onItemSelected: (FileItem) -> Unit = {},
+    onItemLongPress: (FileItem) -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         ExplorerBar(path = currentPath, fontSize = pathBarFontSize)
@@ -53,6 +54,7 @@ fun FileExplorer(
             iconSize = iconSize,
             fontSize = contentFontSize,
             onItemSelected = onItemSelected,
+            onItemLongPress = onItemLongPress,
         )
     }
 }
@@ -66,6 +68,7 @@ fun ExplorerContent(
     iconSize: Dp = 50.dp,
     fontSize: TextUnit = 16.sp,
     onItemSelected: (FileItem) -> Unit = {},
+    onItemLongPress: (FileItem) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -78,7 +81,8 @@ fun ExplorerContent(
                 iconSize = iconSize,
                 fontSize = fontSize,
                 spaceBetween = horizontalGap,
-                onItemSelected = onItemSelected
+                onItemSelected = onItemSelected,
+                onItemLongPress = onItemLongPress,
             )
         }
     }
@@ -111,9 +115,12 @@ fun FileItemRow(
     fontSize: TextUnit = 16.sp,
     spaceBetween: Dp = 10.dp,
     onItemSelected: (FileItem) -> Unit = {},
+    onItemLongPress: (FileItem) -> Unit = {},
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().clickable { onItemSelected(item) },
+        modifier = modifier.fillMaxWidth()
+            .combinedClickable(onClick = { onItemSelected(item) },
+                onLongClick = { onItemLongPress(item) }),
         horizontalArrangement = Arrangement.spacedBy(spaceBetween),
         verticalAlignment = Alignment.CenterVertically
     ) {
