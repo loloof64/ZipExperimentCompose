@@ -21,9 +21,11 @@ import okio.buffer
 import ui.states.FileExplorerState
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.copyToRecursively
-import kotlin.io.path.createParentDirectories
+
+fun String.replaceExtension(newExtension: String): String {
+    val isAFolder = !this.contains(".")
+    return  if (isAFolder) "$this.$newExtension" else (this.split(".").dropLast(1)+newExtension).joinToString(".")
+}
 
 class FileExplorerScreenModel : ScreenModel {
     // State
@@ -142,7 +144,7 @@ class FileExplorerScreenModel : ScreenModel {
     fun compressItem(itemName: String, onSuccess: () -> Unit, onError: () -> Unit) {
         if (_uiState.value !is FileExplorerState.Ready) return
 
-        val newItemName = "$itemName.zip"
+        val newItemName = itemName.replaceExtension("zip")
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
         val targetPath = currentPath.resolve(newItemName)
