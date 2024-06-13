@@ -17,6 +17,7 @@ import composables.FileExplorer
 import composables.Loading
 import composables.icons.FileIcon
 import composables.icons.FolderIcon
+import composables.icons.ZipIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -54,6 +55,7 @@ class MainScreen : Screen {
         val failedCreatingFileStr = stringResource(Res.string.failed_creating_file)
         val failedDeletingFolderStr = stringResource(Res.string.failed_deleting_folder)
         val failedDeletingFileStr = stringResource(Res.string.failed_deleting_file)
+        val failedToCompressItemStr = stringResource(Res.string.failed_compressing_item)
 
         fun onItemSelected(item: FileItem) {
             if (!item.isFolder) return
@@ -160,6 +162,19 @@ class MainScreen : Screen {
                         ) failedDeletingFolderStr else failedDeletingFileStr
                     longPressItemToProcess = null
                     snackbarHostState.showSnackbar(message)
+                }
+            })
+        }
+
+        fun handleCompressElementRequest() {
+            dialogLongItemPressedMenuOpen = false
+
+            screenModel.compressItem(longPressItemToProcess!!.name, onSuccess = {
+                longPressItemToProcess = null
+            }, onError = {
+                scope.launch(Dispatchers.Main) {
+                    longPressItemToProcess = null
+                    snackbarHostState.showSnackbar(failedToCompressItemStr)
                 }
             })
         }
@@ -276,6 +291,17 @@ class MainScreen : Screen {
                                         )
                                     },
                                     onSelected = ::handleDeleteItemRequest,
+                                ),
+                                DialogAction(
+                                    caption = stringResource(Res.string.compress_item),
+                                    leadIcon = {
+                                        Icon(
+                                            modifier = Modifier.size(36.dp),
+                                            imageVector = ZipIcon,
+                                            contentDescription = stringResource(Res.string.compress_icon),
+                                        )
+                                    },
+                                    onSelected = ::handleCompressElementRequest,
                                 )
                             )
                         )

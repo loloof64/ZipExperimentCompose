@@ -21,4 +21,7 @@
     <string name="delete_icon">Icône supprimer un élément</string>
     <string name="failed_deleting_folder">Échec de suppression du dossier !</string>
     <string name="failed_deleting_file">Échec de suppression du fichier !</string>
+    <string name="compress_item">Compresser ici</string>
+    <string name="compress_icon">Icône compresser élément</string>
+    <string name="failed_compressing_item">Échec de compression de l'élément !</string>
 </resources>

@@ -15,8 +15,15 @@ import models.filterByExtensions
 import models.sort
 import okio.FileSystem
 import okio.IOException
+import okio.Path
 import okio.Path.Companion.toPath
+import okio.buffer
 import ui.states.FileExplorerState
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createParentDirectories
 
 class FileExplorerScreenModel : ScreenModel {
     // State
@@ -132,6 +139,26 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
+    fun compressItem(itemName: String, onSuccess: () -> Unit, onError: () -> Unit) {
+        if (_uiState.value !is FileExplorerState.Ready) return
+
+        val newItemName = "$itemName.zip"
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val currentPath = currentPathStr.toPath()
+        val targetPath = currentPath.resolve(newItemName)
+        val sourcePath = currentPath.resolve(itemName)
+
+        try {
+            compressElement(sourcePath = sourcePath, targetPath = targetPath)
+            updateExplorerItemsForCurrentPath()
+            onSuccess()
+        } catch (ex: IOException) {
+            println("Failed to compress $itemName !")
+            println(ex)
+            onError()
+        }
+    }
+
     private fun updateExplorerItemsForCurrentPath() {
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
@@ -148,7 +175,7 @@ class FileExplorerScreenModel : ScreenModel {
                 val rawElementsList = FileSystem.SYSTEM.list(newPath.toPath())
                 val newElementsList = rawElementsList.map {
                     FileItem(it.toFile().isDirectory, it.name)
-                }.filterByExtensions(listOf("txt")).sort()
+                }.filterByExtensions(listOf("txt", "zip")).sort()
                 // Adds the go back item if possible.
                 val result = if (newPath.toPath().toFile().parentFile == null) newElementsList else listOf(
                     FileItem(
@@ -159,6 +186,20 @@ class FileExplorerScreenModel : ScreenModel {
 
                 withContext(Dispatchers.Main) {
                     _uiState.update { (it as FileExplorerState.Ready).copy(items = result) }
+                }
+            }
+        }
+    }
+
+    private fun compressElement(sourcePath: Path, targetPath: Path) {
+        ZipOutputStream(FileSystem.SYSTEM.sink(targetPath).buffer().outputStream()).use { zipOut ->
+            sourcePath.toFile().walkTopDown().forEach { currentFile ->
+                val zipFileName =
+                    currentFile.absolutePath.removePrefix(sourcePath.toFile().absolutePath).removePrefix("/")
+                val entry = ZipEntry("$zipFileName${if (currentFile.isDirectory) "/" else ""}")
+                zipOut.putNextEntry(entry)
+                if (currentFile.isFile) {
+                    currentFile.inputStream().use { fis -> fis.copyTo(zipOut) }
                 }
             }
         }

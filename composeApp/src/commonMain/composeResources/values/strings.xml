@@ -21,4 +21,7 @@
     <string name="delete_icon">Delete item icon</string>
     <string name="failed_deleting_folder">Failed to delete folder !</string>
     <string name="failed_deleting_file">Failed to delete file !</string>
+    <string name="compress_item">Compress here</string>
+    <string name="compress_icon">Compress item icon</string>
+    <string name="failed_compressing_item">Failed to compress item !</string>
 </resources>
