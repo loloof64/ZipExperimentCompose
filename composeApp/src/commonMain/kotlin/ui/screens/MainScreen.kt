@@ -212,6 +212,7 @@ class MainScreen : Screen {
                 is FileExplorerState.Ready -> {
                     FileExplorer(
                         modifier = Modifier.padding(it).fillMaxSize(),
+                        fileIcons = mapOf("zip" to ZipIcon),
                         items = (state.value as FileExplorerState.Ready).items,
                         currentPath = (state.value as FileExplorerState.Ready).currentPath,
                         onItemSelected = ::onItemSelected,

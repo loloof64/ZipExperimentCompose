@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import composables.icons.FileIcon
 import composables.icons.FolderIcon
+import composables.icons.ZipIcon
 import models.FileItem
 import models.sort
 import org.jetbrains.compose.resources.stringResource
@@ -35,6 +37,7 @@ fun Loading(
 @Composable
 fun FileExplorer(
     modifier: Modifier = Modifier,
+    fileIcons: Map<String, ImageVector> = mapOf(),
     items: List<FileItem>,
     currentPath: String,
     verticalGap: Dp = 10.dp,
@@ -49,6 +52,7 @@ fun FileExplorer(
         ExplorerBar(path = currentPath, fontSize = pathBarFontSize)
         ExplorerContent(
             items = items,
+            fileIcons = fileIcons,
             verticalGap = verticalGap,
             horizontalGap = horizontalGap,
             iconSize = iconSize,
@@ -62,6 +66,7 @@ fun FileExplorer(
 @Composable
 fun ExplorerContent(
     modifier: Modifier = Modifier,
+    fileIcons: Map<String, ImageVector> = mapOf(),
     items: List<FileItem>,
     verticalGap: Dp = 10.dp,
     horizontalGap: Dp = 10.dp,
@@ -78,6 +83,7 @@ fun ExplorerContent(
         items(items) { currentItem ->
             FileItemRow(
                 item = currentItem,
+                fileIcons = fileIcons,
                 iconSize = iconSize,
                 fontSize = fontSize,
                 spaceBetween = horizontalGap,
@@ -111,6 +117,7 @@ fun ExplorerBar(
 fun FileItemRow(
     modifier: Modifier = Modifier,
     item: FileItem,
+    fileIcons: Map<String, ImageVector> = mapOf(),
     iconSize: Dp = 50.dp,
     fontSize: TextUnit = 16.sp,
     spaceBetween: Dp = 10.dp,
@@ -124,15 +131,28 @@ fun FileItemRow(
         horizontalArrangement = Arrangement.spacedBy(spaceBetween),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FileItemIcon(isFolder = item.isFolder, modifier = Modifier.size(iconSize))
+        FileItemIcon(
+            isFolder = item.isFolder,
+            fileIcons = fileIcons,
+            fileName = item.name,
+            modifier = Modifier.size(iconSize)
+        )
         FileItemName(fileName = item.name, fontSize = fontSize)
     }
 }
 
 @Composable
-fun FileItemIcon(isFolder: Boolean, modifier: Modifier = Modifier) {
+fun FileItemIcon(
+    isFolder: Boolean,
+    fileName: String,
+    fileIcons: Map<String, ImageVector> = mapOf(),
+    modifier: Modifier = Modifier
+) {
     Image(
-        imageVector = if (isFolder) FolderIcon else FileIcon,
+        imageVector = if (isFolder) FolderIcon else {
+            val extension = fileName.split(".").last()
+            if (fileIcons.containsKey(extension)) fileIcons[extension]!! else FileIcon
+        },
         contentDescription = stringResource(Res.string.file_item_icon),
         modifier = modifier
     )
@@ -190,7 +210,7 @@ private fun PreviewContainer(content: @Composable () -> Unit) {
 @Composable
 fun FolderItemIconPreview() {
     PreviewContainer {
-        FileItemIcon(isFolder = true, modifier = Modifier.size(100.dp))
+        FileItemIcon(isFolder = true, fileName = "test", modifier = Modifier.size(100.dp))
     }
 }
 
@@ -198,7 +218,12 @@ fun FolderItemIconPreview() {
 @Composable
 fun FileItemIconPreview() {
     PreviewContainer {
-        FileItemIcon(isFolder = false, modifier = Modifier.size(100.dp))
+        FileItemIcon(
+            isFolder = false,
+            fileName = "test.zip",
+            modifier = Modifier.size(100.dp),
+            fileIcons = mapOf("zip" to ZipIcon)
+        )
     }
 }
 
