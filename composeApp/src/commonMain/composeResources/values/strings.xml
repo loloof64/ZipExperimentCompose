@@ -23,6 +23,9 @@
     <string name="failed_deleting_file">Failed to delete file !</string>
     <string name="compress_item">Compress here</string>
     <string name="compress_icon">Compress item icon</string>
+    <string name="extract_item">Extract item</string>
+    <string name="extract_icon">Extract item icon</string>
     <string name="failed_compressing_item">Failed to compress item !</string>
+    <string name="failed_extracting_item">Failed to extract item !</string>
     <string name="reload">Reload</string>
 </resources>

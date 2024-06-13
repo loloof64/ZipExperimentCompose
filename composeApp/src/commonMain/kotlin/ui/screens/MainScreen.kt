@@ -30,6 +30,7 @@ import ui.composables.DialogAction
 import ui.composables.MenuConfirm
 import ui.composables.MenuPopUpDialog
 import ui.composables.MenuTextField
+import ui.composables.icons.ExtractIcon
 import ui.states.FileExplorerState
 import ui.viewmodels.FileExplorerScreenModel
 import zipexperiment.composeapp.generated.resources.*
@@ -57,6 +58,7 @@ class MainScreen : Screen {
         val failedDeletingFolderStr = stringResource(Res.string.failed_deleting_folder)
         val failedDeletingFileStr = stringResource(Res.string.failed_deleting_file)
         val failedToCompressItemStr = stringResource(Res.string.failed_compressing_item)
+        val failedToExtractItemStr = stringResource(Res.string.failed_extracting_item)
 
         fun onItemSelected(item: FileItem) {
             if (!item.isFolder) return
@@ -184,6 +186,19 @@ class MainScreen : Screen {
             screenModel.updateExplorerItemsForCurrentPath()
         }
 
+        fun handleExtractElementRequest() {
+            dialogLongItemPressedMenuOpen = false
+
+            screenModel.extractItem(longPressItemToProcess!!.name, onSuccess = {
+                longPressItemToProcess = null
+            }, onError = {
+                scope.launch(Dispatchers.Main) {
+                    longPressItemToProcess = null
+                    snackbarHostState.showSnackbar(failedToExtractItemStr)
+                }
+            })
+        }
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             snackbarHost = {
@@ -280,6 +295,9 @@ class MainScreen : Screen {
                             }
                         )
                     } else if (dialogLongItemPressedMenuOpen) {
+                        val isAnArchive =
+                            (longPressItemToProcess?.isFolder == false)
+                            && (longPressItemToProcess?.name?.endsWith(".zip") == true)
                         MenuPopUpDialog(
                             onDismiss = {
                                 longPressItemToProcess = null
@@ -297,7 +315,18 @@ class MainScreen : Screen {
                                     },
                                     onSelected = ::handleDeleteItemRequest,
                                 ),
-                                DialogAction(
+                                if (isAnArchive) DialogAction(
+                                    caption = stringResource(Res.string.extract_item),
+                                    leadIcon = {
+                                        Icon(
+                                            modifier = Modifier.size(36.dp),
+                                            imageVector = ExtractIcon,
+                                            contentDescription = stringResource(Res.string.extract_icon),
+                                        )
+                                    },
+                                    onSelected = ::handleExtractElementRequest,
+                                )
+                                else DialogAction(
                                     caption = stringResource(Res.string.compress_item),
                                     leadIcon = {
                                         Icon(

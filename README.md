@@ -14,3 +14,4 @@ They have been adapted with [SvgToCompose tool](https://github.com/rafaeltonholo
 * folder => https://www.svgrepo.com/svg/474852/folder
 * file => https://www.svgrepo.com/svg/513298/file-2
 * zip => https://www.svgrepo.com/svg/116513/zip-file-document-variant
+* extract => https://www.svgrepo.com/svg/218163/extract

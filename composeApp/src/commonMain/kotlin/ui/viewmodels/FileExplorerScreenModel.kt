@@ -20,11 +20,13 @@ import okio.Path.Companion.toPath
 import okio.buffer
 import ui.states.FileExplorerState
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import kotlin.io.path.createDirectories
 
 fun String.replaceExtension(newExtension: String): String {
     val isAFolder = !this.contains(".")
-    return  if (isAFolder) "$this.$newExtension" else (this.split(".").dropLast(1)+newExtension).joinToString(".")
+    return if (isAFolder) "$this.$newExtension" else (this.split(".").dropLast(1) + newExtension).joinToString(".")
 }
 
 class FileExplorerScreenModel : ScreenModel {
@@ -161,6 +163,30 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
+    fun extractItem(itemName: String, onSuccess: () -> Unit, onError: () -> Unit) {
+        if (_uiState.value !is FileExplorerState.Ready) return
+
+        if (!itemName.endsWith(".zip")) {
+            println("Not an archive file : $itemName !")
+            onError()
+            return
+        }
+
+        val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
+        val targetRootFolder = currentPathStr.toPath()
+        val zipToExtract = targetRootFolder.resolve(itemName)
+
+        try {
+            extractElement(targetFolder = targetRootFolder, zipPath = zipToExtract)
+            updateExplorerItemsForCurrentPath()
+            onSuccess()
+        } catch (ex: IOException) {
+            println("Failed to extract $itemName !")
+            println(ex)
+            onError()
+        }
+    }
+
     fun updateExplorerItemsForCurrentPath() {
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
@@ -206,4 +232,19 @@ class FileExplorerScreenModel : ScreenModel {
             }
         }
     }
+
+    private fun extractElement(zipPath: Path, targetFolder: Path) {
+        ZipInputStream(FileSystem.SYSTEM.source(zipPath).buffer().inputStream()).use { zipIn ->
+            generateSequence { zipIn.nextEntry }.forEach { zipEntry ->
+                if (!zipEntry.isDirectory) {
+                    val targetPath = targetFolder.resolve(zipEntry.name)
+                    targetPath.parent?.toNioPath()?.createDirectories()
+                    FileSystem.SYSTEM.sink(targetPath).buffer().outputStream().use { fos ->
+                        fos.write(zipIn.readBytes())
+                    }
+                }
+            }
+        }
+    }
+
 }
