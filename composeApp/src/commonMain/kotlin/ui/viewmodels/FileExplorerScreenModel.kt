@@ -225,9 +225,11 @@ class FileExplorerScreenModel : ScreenModel {
                 val zipFileName =
                     currentFile.absolutePath.removePrefix(sourcePath.toFile().absolutePath).removePrefix("/")
                 val entry = ZipEntry("$zipFileName${if (currentFile.isDirectory) "/" else ""}")
-                zipOut.putNextEntry(entry)
-                if (currentFile.isFile) {
-                    currentFile.inputStream().use { fis -> fis.copyTo(zipOut) }
+                if (entry.name != "/") {
+                    zipOut.putNextEntry(entry)
+                    if (currentFile.isFile) {
+                        currentFile.inputStream().use { fis -> fis.copyTo(zipOut) }
+                    }
                 }
             }
         }
