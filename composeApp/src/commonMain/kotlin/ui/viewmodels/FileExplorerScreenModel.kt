@@ -159,7 +159,7 @@ class FileExplorerScreenModel : ScreenModel {
         }
     }
 
-    private fun updateExplorerItemsForCurrentPath() {
+    fun updateExplorerItemsForCurrentPath() {
         val currentPathStr = (_uiState.value as FileExplorerState.Ready).currentPath
         val currentPath = currentPathStr.toPath()
         screenModelScope.launch {

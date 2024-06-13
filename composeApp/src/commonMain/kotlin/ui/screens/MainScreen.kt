@@ -5,6 +5,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -179,13 +180,17 @@ class MainScreen : Screen {
             })
         }
 
+        fun reload() {
+            screenModel.updateExplorerItemsForCurrentPath()
+        }
+
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             },
             topBar = {
-                MainScreenTopBar(onAddItemCallback = ::onCreateItem)
+                MainScreenTopBar(onAddItemCallback = ::onCreateItem, onRefreshContent = ::reload)
             }
         ) {
             when (state.value) {
@@ -325,7 +330,8 @@ class MainScreen : Screen {
 
 @Composable
 fun MainScreenTopBar(
-    onAddItemCallback: () -> Unit = {}
+    onAddItemCallback: () -> Unit = {},
+    onRefreshContent: () -> Unit = {},
 ) {
     TopAppBar(contentPadding = PaddingValues(8.dp)) {
         Text("Zip experiment", fontWeight = FontWeight.Bold)
@@ -335,6 +341,13 @@ fun MainScreenTopBar(
                 modifier = Modifier.size(40.dp),
                 imageVector = Icons.Default.AddCircle,
                 contentDescription = stringResource(Res.string.add_item)
+            )
+        }
+        IconButton(onClick = onRefreshContent) {
+            Icon(
+                modifier = Modifier.size(40.dp),
+                imageVector = Icons.Default.Refresh,
+                contentDescription = stringResource(Res.string.reload)
             )
         }
     }

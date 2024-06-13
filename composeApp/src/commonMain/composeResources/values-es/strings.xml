@@ -23,5 +23,5 @@
     <string name="failed_deleting_file">¡No se pudo eliminar el archivo!</string>
     <string name="compress_item">Comprimir aquí</string>
     <string name="compress_icon">Ícono de comprimir elemento</string>
-    <string name="failed_compressing_item">¡No se pudo comprimir el elemento!</string>
+    <string name="reload">Recargar</string>
 </resources>

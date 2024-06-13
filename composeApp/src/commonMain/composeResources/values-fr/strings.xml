@@ -24,4 +24,5 @@
     <string name="compress_item">Compresser ici</string>
     <string name="compress_icon">Icône compresser élément</string>
     <string name="failed_compressing_item">Échec de compression de l'élément !</string>
+    <string name="reload">Recharger</string>
 </resources>
